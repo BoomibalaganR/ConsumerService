@@ -1,31 +1,43 @@
-const express = require('express') 
-const app = express()  
-const dotenv = require("dotenv") 
-const bodyParser = require('body-parser')  
-const mongoose = require('mongoose')
+const express = require("express")
+const dotenv = require("dotenv")
+const bodyParser = require("body-parser")
+const mongoose = require("mongoose") 
+const cors = require('cors')
 
+const errorMiddleware = require("./src/middleware/errorMiddleware")
+const routes = require("./src/routes/v1")
+const ApiError = require("./src/utils/ApiError")
+const logger = require("./src/utils/logger")
 
-const errorMiddleware = require('./src/middleware/errorMiddleware')
-const consumerRoutes = require('./src/routes/consumerRoutes') 
-const ApiError  = require('./src/utils/ApiError') 
+const app = express()
 
-dotenv.config({path: "./Config.env"}) 
-
+dotenv.config({ path: "./config.env" })
 
 const uri = process.env.MONGODB_URI
-// connect to mongoDB 
-mongoose.connect(uri)
-.then(()=>console.log('db connection established')) 
-.catch((err)=>console.log(err.message)) 
+// connect to mongoDB
+mongoose
+	.connect(uri)
+	.then(() => logger.info("database connected successfully"))
+	.catch((err) => logger.info(`something wrong ${err.message}`))
 
+const corsOptions = {
+	origin: 'https://editor.swagger.io'
+}
 
+app.use(cors(corsOptions))
 
 app.use(bodyParser.json())
-app.use('/consumer', consumerRoutes) 
 
 
-app.all("*", (req, res, next)=>{
-    next(new ApiError(400, `Can't find ${req.originalUrl} on this server`))  
+
+
+app.use("/consumers", routes)
+
+
+
+app.all("*", (req, res, next) => {
+	logger.info(`Can't find ${req.originalUrl} on this server`)
+	next(new ApiError(400, `Can't find ${req.originalUrl} on this server`))
 })
 
 

@@ -1,6 +1,6 @@
-const app = require('./app') 
+const app = require("./app")
+const logger = require("./src/utils/logger")
 
-
-app.listen(process.env.PORT || 3000, ()=>{
-    console.log(`consumer service is running on ${process.env.PORT}`)
+app.listen(process.env.PORT || 3000, () => {
+	logger.info(`consumer service is running on ${process.env.PORT}`)
 })
