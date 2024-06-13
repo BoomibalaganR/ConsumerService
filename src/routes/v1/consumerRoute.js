@@ -22,7 +22,8 @@ router.route('/identify')
 //citizenship  
 router.get('/citizenship/:country/affiliations', citizenshipController.getCitizenshipAffiliation)
 
-router.route('/:coffer_id/citizenship') 
+router.route('/:coffer_id/citizenship')  
+	.get(citizenshipController.getAllCitizenship)
 	.post(validate(citizenshipValidation.createCitizenship), citizenshipController.addCitizenship)
 
 router.route('/:coffer_id/citizenship/:cat') 

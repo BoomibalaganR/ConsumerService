@@ -53,6 +53,7 @@ const ConsumerSchema = new Schema(
 	{ timestamps: { createdAt: "joined" } }
 ) 
 
+ConsumerSchema.index({coffer_id: 1})
 
 
 //create custom uid from email

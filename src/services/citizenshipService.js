@@ -20,6 +20,15 @@ const getAffiliation=  async(country)=>{
     } 
     logger.info("successfully return affiliation.") 
     return affiliations
+} 
+
+
+const getAllCitizenship=  async(coffer_id)=>{    
+    const projection = {_id: 0, citizen: 1}
+    const citizenships = await Consumer.findOne({coffer_id: coffer_id}, projection)  
+
+    logger.info("successfully return all citizenships.") 
+    return citizenships.citizen
 }
 
 
@@ -108,6 +117,7 @@ const deleteCitizenship = async(coffer_id, category)=>{
 
 
 module.exports = {
+    getAllCitizenship,
     addCitizenship, 
     updateCitizenship,
     deleteCitizenship,

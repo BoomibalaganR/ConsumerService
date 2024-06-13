@@ -3,6 +3,11 @@ const httpStatus = require('http-status')
 const catchAsync = require('../utils/catchAsync') 
 const {citizenshipService} = require('../services')
 
+exports.getAllCitizenship = catchAsync(async(req, res)=>{   
+    const coffer_id =  req.params.coffer_id   
+    const data =  await citizenshipService.getAllCitizenship(coffer_id)
+    res.status(httpStatus.OK).json(data)
+}) 
 
 
 exports.addCitizenship = catchAsync(async(req, res)=>{   
