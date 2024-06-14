@@ -36,7 +36,7 @@ exports.createCitizenship ={
     work_address: Joi.string().optional().allow(''),
     work_phone: Joi.string().optional().allow(''),
     alt_phone: Joi.string().optional().allow('')
-  }).options({stripUnknown: true})
+  }).options({stripUnknown: true, abortEarly: false})
 }
 
 
@@ -64,6 +64,6 @@ exports.updateCitizenship = {
     work_address: Joi.string().optional().allow(''),
     work_phone: Joi.string().optional().allow(''),
     alt_phone: Joi.string().optional().allow('')
-  }).options({stripUnknown: true})
+  }).options({stripUnknown: true, abortEarly: false})
 
 }

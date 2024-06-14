@@ -8,7 +8,6 @@ const {AFFILIATIONS, INDIA_AFFILIATIONS} = require('../utils/constants')
 
 
 const getAffiliation=  async(country)=>{    
-
     afl= country === 'India'? INDIA_AFFILIATIONS : AFFILIATIONS  
 
     const affiliations = []
@@ -31,6 +30,21 @@ const getAllCitizenship=  async(coffer_id)=>{
     return citizenships.citizen
 }
 
+const getCitizenshipByCategory = async(coffer_id, category)=>{    
+    const projection = {_id: 0, 'citizen.$': 1}
+    const citizenships = await Consumer.findOne(
+                        { 
+                            coffer_id: coffer_id, 
+                            citizen: { $elemMatch: { index: category } } 
+                        },
+                        projection) 
+
+    if (!citizenships){  
+        throw new ApiError(httpStatus.NOT_FOUND, "citizenship not found.")
+    } 
+    logger.info("successfully return citizenships.") 
+    return citizenships.citizen[0]
+}
 
 const addCitizenship = async(coffer_id, payload)=>{  
     const con = await userService.getConsumerByCoffer_id(coffer_id) 
@@ -61,7 +75,9 @@ const updateCitizenship =  async(coffer_id, category, payload)=>{
     const updateFields = {}
     for (const key in payload) {
         updateFields[`citizen.$.${key}`] = payload[key]
-    }  
+    }   
+    //{citizen.$.homeaddress: homeaddress }
+    console.log(updateFields)
 
     const updatedConsumer = await Consumer.findOneAndUpdate(
                             { 
@@ -86,11 +102,10 @@ const updateCitizenship =  async(coffer_id, category, payload)=>{
 
 const deleteCitizenship = async(coffer_id, category)=>{ 
     if(category === 'citizen_primary'){
-        logger.info('Primary affiliation cannot be deleted.')
-        throw new ApiError(400, 'Primary affiliation cannot be deleted.')
+        throw new ApiError(httpStatus.BAD_REQUEST, 'Primary affiliation cannot be deleted.')
     }
     
-    const con = await getConsumerByCoffer_id(coffer_id) 
+    const con = await userService.getConsumerByCoffer_id(coffer_id) 
     if (!con) {
         throw new ApiError(httpStatus.NOT_FOUND, 'consumer not found')
     }   
@@ -118,6 +133,7 @@ const deleteCitizenship = async(coffer_id, category)=>{
 
 module.exports = {
     getAllCitizenship,
+    getCitizenshipByCategory,
     addCitizenship, 
     updateCitizenship,
     deleteCitizenship,

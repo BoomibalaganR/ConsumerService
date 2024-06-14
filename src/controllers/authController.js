@@ -5,7 +5,6 @@ const {authService} = require('../services')
 const httpStatus = require('http-status')
 
 
-
 const consumerLogin = catchAsync(async (req, res) => {
 	const payload = req.body
 
@@ -19,7 +18,8 @@ const consumerLogin = catchAsync(async (req, res) => {
 		`Login attempt for email: ${payload.email || "N/A"}, mobile: ${
 			payload.mobile || "N/A"}`)  
 			
-	const data = await authService.login(query, payload['password'])   
+	const data = await authService.login(query, payload['password'])    
+	
 	res.status(httpStatus.OK).json(data)
 })
 

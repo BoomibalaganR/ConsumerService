@@ -4,6 +4,7 @@ const logger = require("../utils/logger")
 const httpStatus = require('http-status') 
 
 
+const {generateToken} = require('../utils/token')
 
 
 exports.login = async (query, password)=> { 
@@ -14,7 +15,6 @@ exports.login = async (query, password)=> {
     }  
     
     if (! await con.isPasswordMatch(password)) { 
-        console.log('inside function')
         throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid email or password');
     }   
 
@@ -35,16 +35,18 @@ exports.login = async (query, password)=> {
         mobile_verified: con.mobile_verified,
         lastlogin: con.lastlogin,
         email: con.email,
-        mobile: con.mob ? con.mob : " ",
+        mobile: con.mob ? con.mob : '',
         pk: con._id,
         password_mode: con.password_mode,
     }
 
     await con.save()
-    logger.info(`${con.first_name} - Login successful`)
+    logger.info(`${con.first_name} - Login successful`) 
+    
+    token = generateToken(ctxt)
     return {
         error: false,
-        message: "Login success",
+        token: token,
         data: ctxt,
     }
 } 
