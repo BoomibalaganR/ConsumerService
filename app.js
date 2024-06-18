@@ -14,8 +14,8 @@ dotenv.config({ path: "./config.env" })
 
 
 // const uri = process.env.LOCAL_DB_URI 
-
 const uri = process.env.CLOUD_DB_URI
+
 // connect to mongoDB
 mongoose
 	.connect(uri)
@@ -33,7 +33,7 @@ app.use(bodyParser.json())
 
 
 
-app.use("/consumer", routes)
+app.use("/consumers", routes)
 
 
 app.all("*", (req, res, next) => {

@@ -1,27 +1,28 @@
 const httpStatus = require('http-status')
  
 const catchAsync = require('../utils/catchAsync') 
-const {citizenshipService} = require('../services')
+const {citizenshipRepository} = require('../repository')
 
 
 
 exports.getAllCitizenship = catchAsync(async(req, res)=>{    
-    const coffer_id =  req.user.coffer_id   
-    const data =  await citizenshipService.getAllCitizenship(coffer_id)
+    const coffer_id =  req.user.coffer_id    
+    // const coffer_id = req.headers['x-coffer-id']
+    const data =  await citizenshipRepository.getAllCitizenship(coffer_id)
     res.status(httpStatus.OK).json(data)
 }) 
 
 exports.getCitizenshipByCategory = catchAsync(async(req, res)=>{    
     const coffer_id =  req.user.coffer_id   
     const category = req.params.cat  
-    const data =  await citizenshipService.getCitizenshipByCategory(coffer_id, category)
+    const data =  await citizenshipRepository.getCitizenshipByCategory(coffer_id, category)
     res.status(httpStatus.OK).json(data)
 }) 
 
 
 exports.addCitizenship = catchAsync(async(req, res)=>{   
     const coffer_id =  req.user.coffer_id   
-    const data =  await citizenshipService.addCitizenship(coffer_id, req.body)
+    const data =  await citizenshipRepository.addCitizenship(coffer_id, req.body)
     res.status(httpStatus.OK).json(data)
 }) 
 
@@ -30,7 +31,7 @@ exports.updateCitizenship = catchAsync(async(req, res)=>{
     const coffer_id = req.user.coffer_id 
     const category = req.params.cat  
 
-    const data = await citizenshipService.updateCitizenship(coffer_id, category, req.body)
+    const data = await citizenshipRepository.updateCitizenship(coffer_id, category, req.body)
     res.status(httpStatus.OK).json(data)
 })
 
@@ -38,7 +39,7 @@ exports.updateCitizenship = catchAsync(async(req, res)=>{
 exports.deleteCitizenship = catchAsync(async(req, res)=>{
     const coffer_id = req.user.coffer_id
     const category = req.params.cat   
-    await citizenshipService.deleteCitizenship(coffer_id, category) 
+    await citizenshipRepository.deleteCitizenship(coffer_id, category) 
     res.status(httpStatus.OK).json({
         'error': false, 
         'msg': 'Deleted country affiliation successfully.'})
@@ -46,6 +47,6 @@ exports.deleteCitizenship = catchAsync(async(req, res)=>{
 
 exports.getCitizenshipAffiliation = catchAsync(async(req, res)=>{ 
     const country = req.params.country 
-    const data = await citizenshipService.getAffiliation(country) 
+    const data = await citizenshipRepository.getAffiliation(country) 
     res.status(httpStatus.OK).json(data)
 })

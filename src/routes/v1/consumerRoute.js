@@ -11,7 +11,7 @@ const router = express.Router()
 
 
 router.use((req, res, next) => {
-	logger.info(`consumer routes ${req.originalUrl}`)
+	logger.info(`consumer routes ${req.originalUrl}`) 
 	next()
 })
 

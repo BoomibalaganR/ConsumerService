@@ -51,7 +51,7 @@ describe('Citizenship Routes', () => {
         expect(res.body).toBeInstanceOf(Array)
     })
 
-    test('POST /:coffer_id/citizenship should add a citizenship to a consumer', async () => {
+    test('POST /citizenship should add a citizenship to a consumer', async () => {
         const payload ={
             "country": "india",
             "affiliation_type": "dcitz",
@@ -63,7 +63,7 @@ describe('Citizenship Routes', () => {
         } 
 
         const res = await request(app)
-                    .post('/consumers/939d55f9ef8908ba/citizenship')
+                    .post('/consumers/citizenship')
                     .send(payload)  
         let last_index = res.body.citizen.length - 1
         
@@ -72,7 +72,7 @@ describe('Citizenship Routes', () => {
         expect(res.body.citizen[last_index]).toMatchObject(payload)
     })
 
-    test('PUT /:coffer_id/citizenship/:cat should update an existing citizenship', async () => {      
+    test('PUT /citizenship/:cat should update an existing citizenship', async () => {      
         const payload ={
             "country": "india",
             "affiliation_type": "dcitz",
@@ -84,7 +84,7 @@ describe('Citizenship Routes', () => {
         } 
 
         const res = await request(app)
-                    .put('/consumers/939d55f9ef8908ba/citizenship/citizen_primary')
+                    .put('/consumers/citizenship/citizen_primary')
                     .send(payload) 
 
         let last_index = res.body.citizen.length - 1
@@ -92,9 +92,9 @@ describe('Citizenship Routes', () => {
         expect(res.body.citizen[last_index]).toMatchObject(payload)
     })
 
-    test('DELETE /:coffer_id/citizenship/:cat should delete an primary citizenship', async () => {       
+    test('DELETE /citizenship/:cat should delete an primary citizenship', async () => {       
         const res = await request(app)
-                    .delete('/consumers/939d55f9ef8908ba/citizenship/citizen_primary')
+                    .delete('/consumers/citizenship/citizen_primary')
         expect(res.statusCode).toBe(httpStatus.BAD_REQUEST)
     })
 })

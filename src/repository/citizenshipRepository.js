@@ -3,7 +3,7 @@ const ApiError = require("../utils/ApiError")
 const logger = require("../utils/logger")  
 const httpStatus = require('http-status') 
 
-const userService = require('./userService') 
+const userRepository = require('./userRepository') 
 const {AFFILIATIONS, INDIA_AFFILIATIONS} = require('../utils/constants')
 
 
@@ -67,7 +67,7 @@ const addCitizenship = async(coffer_id, payload)=>{
 
 const updateCitizenship =  async(coffer_id, category, payload)=>{
 
-    const con = await userService.getConsumerByCoffer_id(coffer_id) 
+    const con = await userRepository.getConsumerByCoffer_id(coffer_id) 
     if (!con) {
         throw new ApiError(httpStatus.NOT_FOUND, 'consumer not found')
     }  
@@ -105,7 +105,7 @@ const deleteCitizenship = async(coffer_id, category)=>{
         throw new ApiError(httpStatus.BAD_REQUEST, 'Primary affiliation cannot be deleted.')
     }
     
-    const con = await userService.getConsumerByCoffer_id(coffer_id) 
+    const con = await userRepository.getConsumerByCoffer_id(coffer_id) 
     if (!con) {
         throw new ApiError(httpStatus.NOT_FOUND, 'consumer not found')
     }   
