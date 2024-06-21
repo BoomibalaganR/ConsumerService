@@ -1,7 +1,7 @@
 const express = require("express")
 const dotenv = require("dotenv")
 const bodyParser = require("body-parser")
-const mongoose = require("mongoose") 
+const mongoose = require("mongoose")
 const cors = require('cors')
 
 const errorMiddleware = require("./src/middleware/errorMiddleware")
@@ -12,37 +12,31 @@ const app = express()
 
 dotenv.config({ path: "./config.env" })
 
-
-// const uri = process.env.LOCAL_DB_URI 
-const uri = process.env.CLOUD_DB_URI
-
-// connect to mongoDB
+// Connect to MongoDB
 mongoose
-	.connect(uri)
-	.then(() => logger.info("database connected successfully"))
-	.catch((err) => logger.info(`something wrong ${err.message}`))
+    .connect(process.env.CLOUD_DB_URI)
+    .then(() => logger.info("Database connected successfully"))
+    .catch((err) => logger.info(`Something went wrong with MongoDB connection: ${err.message}`))
 
-
+// Enable CORS with specific options
 const corsOptions = {
-	origin: 'https://editor.swagger.io'
+    origin: 'https://editor.swagger.io'
 }
 app.use(cors(corsOptions))
 
+// Parse JSON request body
 app.use(bodyParser.json())
 
-
-
-
+// Routes
 app.use("/consumers", routes)
 
-
+// Handle unknown routes
 app.all("*", (req, res, next) => {
-	logger.info(`Can't find ${req.originalUrl} on this server`)
-	next(new ApiError(400, `Can't find ${req.originalUrl} on this server`))
+    logger.info(`Can't find ${req.originalUrl} on this server`)
+    next(new ApiError(400, `Can't find ${req.originalUrl} on this server`))
 })
 
-
-// Handle the error GLOBALLY
+// Global error handler middleware
 app.use(errorMiddleware)
 
 module.exports = app

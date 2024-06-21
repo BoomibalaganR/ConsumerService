@@ -1,52 +1,89 @@
 const httpStatus = require('http-status')
- 
-const catchAsync = require('../utils/catchAsync') 
-const {citizenshipRepository} = require('../repository')
+const catchAsync = require('../utils/catchAsync')
+const { citizenshipRepository } = require('../repository')
 
-
-
-exports.getAllCitizenship = catchAsync(async(req, res)=>{    
-    const coffer_id =  req.user.coffer_id    
-    // const coffer_id = req.headers['x-coffer-id']
-    const data =  await citizenshipRepository.getAllCitizenship(coffer_id)
+/**
+ * Retrieves all citizenships associated with the authenticated user's coffer_id.
+ * 
+ * @param {Object} req - The request object containing user information (req.user).
+ * @param {Object} res - The response object to send back the retrieved citizenship data.
+ */
+exports.getAllCitizenship = catchAsync(async (req, res) => {
+    const coffer_id = req.user.coffer_id
+    const data = await citizenshipRepository.getAllCitizenship(coffer_id)
     res.status(httpStatus.OK).json(data)
-}) 
+})
 
-exports.getCitizenshipByCategory = catchAsync(async(req, res)=>{    
-    const coffer_id =  req.user.coffer_id   
-    const category = req.params.cat  
-    const data =  await citizenshipRepository.getCitizenshipByCategory(coffer_id, category)
+/**
+ * Retrieves citizenship information by a specific category for the authenticated user's coffer_id.
+ * 
+ * @param {Object} req - The request object containing user information (req.user) and category (req.params.cat).
+ * @param {Object} res - The response object to send back the retrieved citizenship data.
+ */
+exports.getCitizenshipByCategory = catchAsync(async (req, res) => {
+    const coffer_id = req.user.coffer_id
+    const category = req.params.cat
+    const data = await citizenshipRepository.getCitizenshipByCategory(coffer_id, category)
     res.status(httpStatus.OK).json(data)
-}) 
+})
 
-
-exports.addCitizenship = catchAsync(async(req, res)=>{   
-    const coffer_id =  req.user.coffer_id   
-    const data =  await citizenshipRepository.addCitizenship(coffer_id, req.body)
+/**
+ * Adds a new citizenship entry for the authenticated user's coffer_id.
+ * 
+ * @param {Object} req - The request object containing user information (req.user) and citizenship data (req.body).
+ * @param {Object} res - The response object to send back the result of adding the citizenship.
+ */
+exports.addCitizenship = catchAsync(async (req, res) => {
+    const coffer_id = req.user.coffer_id
+    const data = await citizenshipRepository.addCitizenship(coffer_id, req.body)
     res.status(httpStatus.OK).json(data)
-}) 
+})
 
-
-exports.updateCitizenship = catchAsync(async(req, res)=>{  
-    const coffer_id = req.user.coffer_id 
-    const category = req.params.cat  
-
+/**
+ * Updates an existing citizenship entry identified by category for the authenticated user's coffer_id.
+ * 
+ * @param {Object} req - The request object containing user information (req.user), 
+ *                       category (req.params.cat), and updated citizenship data (req.body).
+ * @param {Object} res - The response object to send back the updated citizenship data.
+ */
+exports.updateCitizenship = catchAsync(async (req, res) => {
+    const coffer_id = req.user.coffer_id
+    const category = req.params.cat
     const data = await citizenshipRepository.updateCitizenship(coffer_id, category, req.body)
     res.status(httpStatus.OK).json(data)
 })
 
-
-exports.deleteCitizenship = catchAsync(async(req, res)=>{
+/**
+ * Deletes a citizenship entry identified by category for the authenticated user's coffer_id.
+ * 
+ * @param {Object} req - The request object containing user information (req.user) and 
+ *                       category (req.params.cat) of the citizenship to delete.
+ * @param {Object} res - The response object to send back the result of deleting the citizenship.
+ */
+exports.deleteCitizenship = catchAsync(async (req, res) => {
     const coffer_id = req.user.coffer_id
-    const category = req.params.cat   
-    await citizenshipRepository.deleteCitizenship(coffer_id, category) 
+    const category = req.params.cat
+
+    // Prevent deletion of primary citizenship
+    if (category === 'citizen_primary') {
+        throw new Error('Primary affiliation cannot be deleted.')
+    }
+
+    await citizenshipRepository.deleteCitizenship(coffer_id, category)
     res.status(httpStatus.OK).json({
-        'error': false, 
-        'msg': 'Deleted country affiliation successfully.'})
+        error: false,
+        msg: 'Deleted country affiliation successfully.'
+    })
 })
 
-exports.getCitizenshipAffiliation = catchAsync(async(req, res)=>{ 
-    const country = req.params.country 
-    const data = await citizenshipRepository.getAffiliation(country) 
+/**
+ * Retrieves affiliation information based on the specified country.
+ * 
+ * @param {Object} req - The request object containing the country parameter (req.params.country).
+ * @param {Object} res - The response object to send back the retrieved affiliation data.
+ */
+exports.getCitizenshipAffiliation = catchAsync(async (req, res) => {
+    const country = req.params.country
+    const data = await citizenshipRepository.getAffiliation(country)
     res.status(httpStatus.OK).json(data)
 })

@@ -1,10 +1,12 @@
 const mongoose = require("mongoose")
 const { Schema } = mongoose
-const bcrypt = require("bcryptjs") 
-const CountrySchema = require('./country')
+const bcrypt = require("bcryptjs")
+const CountrySchema = require('./country') 
 
-
-
+/**
+ * Mongoose schema for the Consumer collection.
+ * Represents a consumer entity in the database.
+ */
 const ConsumerSchema = new Schema(
 	{
 		coffer_id: {
@@ -31,12 +33,10 @@ const ConsumerSchema = new Schema(
 			type: String,
 			required: [true, "Password is required"],
 		},
-
 		confirm_password: { type: String },
 		password_reset_token: { type: String },
 		password_reset_timestamp: { type: Date },
 		password_mode: { type: String },
-
 		lastlogin: { type: Date },
 		dob: { type: Date },
 		email: {
@@ -48,41 +48,50 @@ const ConsumerSchema = new Schema(
 		mobile_verified: { type: Boolean, default: false },
 		email_verification_token: { type: String },
 		mobile_verification_token: { type: String },
-		citizen: { type: [CountrySchema] },
+		citizen: { type: [CountrySchema] }, // Embeds an array of CountrySchema documents
 	},
-	{ timestamps: { createdAt: "joined" } }
-) 
+	{ timestamps: { createdAt: "joined" } } // Adds createdAt timestamp to track creation date
+)
 
-ConsumerSchema.index({coffer_id: 1})
+// Index for efficient lookup by coffer_id
+ConsumerSchema.index({ coffer_id: 1 })
 
-
-//create custom uid from email
-ConsumerSchema.virtual("custom_uid").get(function () {
-	return this.email.replace(/\./g, "").replace(/@/g, "")
-}) 
-
+/**
+ * Method to compare provided password with stored hashed password.
+ * Uses bcrypt to securely compare passwords.
+ * @param {string} password - Plain text password to compare
+ * @returns {boolean} - True if passwords match, false otherwise
+ */
 ConsumerSchema.methods.isPasswordMatch = async function (password) {
 	return await bcrypt.compare(password, this.password)
-} 
+}
 
-ConsumerSchema.methods.hasCitizenship =  function(){ 
-    const citizens = this.citizen
-    const citizenships = ['citizen_primary','citizen_second','citizen_third', 'citizen_fourth']
+/**
+ * Method to check if the consumer has citizenship records.
+ * Iterates through the citizen array and returns the first available citizenship index.
+ * @returns {string|null} - First available citizenship index or null if all slots are occupied
+ */
+ConsumerSchema.methods.hasCitizenship = function () {
+	const citizenships = ['citizen_primary', 'citizen_second', 'citizen_third', 'citizen_fourth']
 
-    for(const citizen of citizens){
-        const index= citizenships.indexOf(citizen.index) 
-        if (index!=-1){
-            citizenships.splice(index, 1)
-        }
-    }   
-    console.log(citizenships)
-    if (citizenships.length) return citizenships[0]
-} 
+	for (const citizen of this.citizen) {
+		const index = citizenships.indexOf(citizen.index)
+		if (index !== -1) {
+			citizenships.splice(index, 1)
+		}
+	}
 
+	if (citizenships.length) return citizenships[0]
+}
 
-// Before saving the user to the database, hash the password
-ConsumerSchema.pre("save", async function (next) { 
+/**
+ * Middleware function executed before saving a consumer document.
+ * Hashes the password using bcrypt before saving it to the database.
+ * @param {Function} next - Callback function to continue the middleware chain
+ */
+ConsumerSchema.pre("save", async function (next) {
 	if (!this.isModified('password')) return next()
+
 	try {
 		const salt = await bcrypt.genSalt(10)
 		const hashedPassword = await bcrypt.hash(this.password, salt)
@@ -93,7 +102,4 @@ ConsumerSchema.pre("save", async function (next) {
 	}
 })
 
-
-
 module.exports = mongoose.model("Consumer", ConsumerSchema)
-

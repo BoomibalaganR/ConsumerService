@@ -1,37 +1,33 @@
-const jwt = require('jsonwebtoken') 
-
-const ApiError = require("../utils/ApiError") 
+const ApiError = require('../utils/ApiError')
 const logger = require('../utils/logger')
 const httpStatus = require('http-status')
+const { verifyToken } = require('../utils/token')
 
-
-const SECRET_KEY = process.env.JWT_SECRET_KEY 
-
-const authenticateToken= (req, res, next) => {   
-   
-    // get token from Authorization header
+/**
+ * Middleware to authenticate a JWT token.
+ * 
+ * @param {Object} req - The request object.
+ * @param {Object} res - The response object.
+ * @param {Function} next - The next middleware function.
+ * @returns {void}
+ * @throws {ApiError} - If the token is missing or invalid.
+ */
+const authenticateToken = (req, res, next) => {
+    // Get token from Authorization header
     const authHeader = req.headers['authorization']
     const token = authHeader && authHeader.split(' ')[1]
 
     // If token is missing, return unauthorized
-    if (!token) return next(new ApiError(httpStatus.UNAUTHORIZED, 'UnAuthorized'))
-    
-    // Verify token
-    jwt.verify(token, SECRET_KEY, (err, decoded) => { 
-    
-        // If fail, return unauthorized
-        if (err) {
-            if (err.name === 'TokenExpiredError') { 
-                return next(new ApiError(httpStatus.UNAUTHORIZED, 'Token has expired'))
-            } 
-            return next(new ApiError(httpStatus.UNAUTHORIZED, 'Invalid token'))
-        }
-        
-        //if authenticated, add coffer_id into request
-        req.user = decoded  
-        logger.info(`successfully authenticate`)
-        next()
-    })
+    if (!token) {
+        return next(new ApiError(httpStatus.UNAUTHORIZED, 'UnAuthorized'))
+    }
+
+    const decodedToken = verifyToken(token)
+
+    // If authenticated, add coffer_id into request
+    req.user = decodedToken
+    logger.info('Successfully authenticated')
+    next()
 }
 
 module.exports = { authenticateToken }

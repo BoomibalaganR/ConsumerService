@@ -1,12 +1,14 @@
 const Joi = require('joi')
 
+/**
+ * Validation schema for login endpoint.
+ */
 
-const login ={ 
-  
-  body:Joi.object({
+const login = {
+  body: Joi.object({
     action: Joi.string().required().messages({
-      'any.required': 'please enter action',
-      'string.empty': 'please enter action'
+      'any.required': 'Please enter action.',
+      'string.empty': 'Please enter action.'
     }),
     email: Joi.string().email().messages({
       'string.email': 'Please enter a valid email.'
@@ -15,17 +17,16 @@ const login ={
       'string.pattern.base': 'Please enter a valid mobile number.'
     }),
     logintype: Joi.string().required().messages({
-      'any.required': 'please enter login type',
-      'string.empty': 'please enter login type'
+      'any.required': 'Please enter login type.',
+      'string.empty': 'Please enter login type.'
     }),
     password: Joi.string().required().messages({
-      'any.required': 'please enter password',
-      'string.empty': 'please enter password'
+      'any.required': 'Please enter password.',
+      'string.empty': 'Please enter password.'
     })
   }).or('email', 'mobile').messages({
     'object.missing': 'Either email or mobile must be provided.'
-  }).options({ abortEarly: false }) 
-
+  }).options({ abortEarly: false })
 }
 
-module.exports = { login}
+module.exports = { login }

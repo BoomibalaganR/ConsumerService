@@ -17,7 +17,6 @@ module.exports = (err, req, res, next) => {
 		res.status(err.statusCode).json({ errors: messages })
 	} else if (err instanceof ApiError) { 
 		logger.info(err.message)
-		// console.error(err.stack)
 		res.status(err.statusCode).json({ error: true, message: err.message })
 	} else { 
 		logger.info(err.message)
