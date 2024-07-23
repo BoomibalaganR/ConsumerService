@@ -34,7 +34,8 @@ const SpecialRelationshipSchema = new Schema({
 		default: ['personal'], // Tags for acceptor
 	},
 	accepted_date: {
-		type: Date, // Date when the request was accepted
+		type: Date, // Date when the request was accepted 
+		immutable: true
 	},
 	acceptor_group_acls: {
 		type: [String], // Access control list for acceptor
@@ -45,7 +46,7 @@ const SpecialRelationshipSchema = new Schema({
 	},
 	status: {
 		type: String, // Status of the relationship
-		enum: ['accepted', 'requested'],
+		enum: ['accepted', 'requested', 'rejected'],
 		default: 'requested',
 	},
 	description: {

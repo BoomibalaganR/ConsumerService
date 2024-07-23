@@ -1,6 +1,7 @@
 const httpStatus = require('http-status')
 const { SpecialRelationship, Consumer } = require('../models')
 const ApiError = require('../utils/ApiError')
+const logger = require('../../config/logger')
 
 exports.getAllRelationship = async (coffer_id) => {
 	const consumer = await Consumer.findByCofferId(coffer_id)
@@ -13,7 +14,7 @@ exports.getAllRelationship = async (coffer_id) => {
 		$or: [{ acceptor_uid: coffer_id }, { requestor_uid: coffer_id }],
 	})
 
-	const items = []
+	const consumerRelationships = []
 
 	for (const srel of relationships) {
 		let businessName = ''
@@ -51,7 +52,7 @@ exports.getAllRelationship = async (coffer_id) => {
 			}
 		}
 
-		items.push({
+		consumerRelationships.push({
 			id: String(srel._id),
 			isSpecial: true,
 			canAccept,
@@ -72,7 +73,7 @@ exports.getAllRelationship = async (coffer_id) => {
 			profileUrl,
 		})
 	}
-	return items
+	return { relationships: consumerRelationships }
 }
 
 exports.requestRelationship = async (requestorCofferId, payload) => {
@@ -88,8 +89,8 @@ exports.requestRelationship = async (requestorCofferId, payload) => {
 	if (!acceptorConsumer) {
 		throw new ApiError(httpStatus.NOT_FOUND, 'Acceptor Account not found')
 	}
-	const acceptorCofferId = acceptorConsumer.coffer_id
 
+	const acceptorCofferId = acceptorConsumer.coffer_id
 	if (requestorCofferId === acceptorCofferId) {
 		throw new ApiError(httpStatus.BAD_REQUEST, 'Operation not permitted.')
 	}
@@ -116,26 +117,77 @@ exports.requestRelationship = async (requestorCofferId, payload) => {
 		description: description,
 	})
 
-	console.log('>>>>>> SEND EMAIL NOTIFICATION <<<<<<')
+	logger.info('>>>>>> SEND EMAIL NOTIFICATION <<<<<<')
 
+	logger.info('Successfully sent request')
 	return { message: 'Request sent successfully.', data: newRelationship }
 }
 
 exports.acceptRelationship = async (acceptorCofferId, relationshipId) => {
+
+	// consumer exists
 	const acceptorConsumer = await Consumer.findByCofferId(acceptorCofferId)
-
 	if (!acceptorConsumer) {
-		throw new ApiError(httpStatus.NOT_FOUND, 'Consumer not found')
+		throw new ApiError(httpStatus.NOT_FOUND, 'Account not found.')
 	}
 
-	const spRelationship = await SpecialRelationship.findById(relationshipId)
-	if (!spRelationship) {
-		throw new ApiError(httpStatus.NOT_FOUND, 'Relationship not found.')
+	// Find and update the relationship
+	const acceptedRelationship = await SpecialRelationship.findOneAndUpdate(
+		{
+			_id: relationshipId,
+			acceptor_uid: acceptorCofferId,
+			isaccepted: false
+		},
+		{
+			$set: {
+				isaccepted: true,
+				accepted_date: Date.now(),
+				status: 'accepted'
+			}
+		},
+		{ new: true } // Return the updated document
+	)
+
+	if (!acceptedRelationship) {
+		throw new ApiError(httpStatus.NOT_FOUND, 'Relationship not found or already accepted.')
 	}
 
-	const requestorCofferId = spRelationship.requestor_uid
-
-	if (acceptorCofferId === requestorCofferId) {
-		throw new ApiError(httpStatus.BAD_REQUEST, 'Operation not permitted.')
+	return {
+		message: 'Relationship status modified successfully.'
 	}
+
+}
+
+exports.rejectRelationship = async (rejectorCofferId, relationshipId, rejectReason) => {
+
+	// consumer exists
+	const rejectorConsumer = await Consumer.findByCofferId(rejectorCofferId)
+	if (!rejectorConsumer) {
+		throw new ApiError(httpStatus.NOT_FOUND, 'Account not found.')
+	}
+	// console.log(await SpecialRelationship.findById(rejectorCofferId))
+	// Find and update the relationship
+	const rejectedRelationship = await SpecialRelationship.findOneAndUpdate(
+		{
+			_id: relationshipId,
+			acceptor_uid: rejectorCofferId,
+			isaccepted: false
+		},
+		{
+			$set: {
+				status: 'rejected',
+				reject_reason: rejectReason
+			}
+		},
+		{ new: true } // Return the updated document
+	)
+
+	if (!rejectedRelationship) {
+		throw new ApiError(httpStatus.NOT_FOUND, 'Relationship not found or already rejected.')
+	}
+
+	return {
+		message: 'Successfully rejected relationship.'
+	}
+
 }

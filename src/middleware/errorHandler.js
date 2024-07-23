@@ -6,16 +6,18 @@ module.exports = (err, req, res, next) => {
 	// console.log(err)
 	// Validation Error Handling
 	if (err.name === 'ValidationError') {
-		const errors = {}
+		let errors = {}
 		// console.log(err.details)
 		if (err.details) {
 			err.details.forEach((detail) => {
-				errors[detail.path.join('.')] = detail.message
+				errors[detail.path] = detail.message
 			})
+			// errors = err.details
 		}
 
 		return res.status(httpStatus.BAD_REQUEST).json({ errors })
 	}
+
 	// API Error Handling (Custom errors)
 	if (err instanceof ApiError) {
 		logger.info(`Api Error: ${err.message}`)

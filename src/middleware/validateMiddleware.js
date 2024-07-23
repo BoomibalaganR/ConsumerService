@@ -7,13 +7,29 @@
 
 exports.validate = (schema) => {
     return (req, res, next) => {
-        
-        const { error, value } = schema.body.validate(req.body)
-        if (error) {
-            return next(error)
-        }   
-        
-        req.body = value
+        const bodyResult = schema.body ? schema.body.validate(req.body) : { error: null, value: req.body }
+        const paramsResult = schema.params ? schema.params.validate(req.params) : { error: null, value: req.params }
+
+        if (bodyResult.error) {
+            bodyResult.error.name = 'ValidationError'
+            bodyResult.error.details = bodyResult.error.details.map(detail => ({
+                path: `body.${detail.path.join('.')}`,
+                message: detail.message
+            }))
+            return next(bodyResult.error)
+        }
+
+        if (paramsResult.error) {
+            paramsResult.error.name = 'ValidationError'
+            paramsResult.error.details = paramsResult.error.details.map(detail => ({
+                path: `params.${detail.path.join('.')}`,
+                message: detail.message
+            }))
+            return next(paramsResult.error)
+        }
+
+        req.body = bodyResult.value
+        req.params = paramsResult.value
         next()
-    }
-}
+    };
+};

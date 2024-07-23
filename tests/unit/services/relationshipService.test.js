@@ -5,8 +5,8 @@ const httpStatus = require('http-status')
 const ApiError = require('../../../src/utils/ApiError')
 
 // mock the identity model
-jest.mock('../../../src/models/SpecialRelationship')
-jest.mock('../../../src/models/Consumer')
+jest.mock('../../../src/models/specialRelationship')
+jest.mock('../../../src/models/consumer')
 
 describe('getAllRelationship service', () => {
 	const cofferId = 'sampleCofferId'
@@ -53,48 +53,49 @@ describe('getAllRelationship service', () => {
 
 		const result = await relationshipService.getAllRelationship(cofferId)
 
-		expect(result).toEqual([
-			{
-				id: 'relationshipId1',
-				isSpecial: true,
-				canAccept: true,
-				business_name: 'Boomibalagan R',
-				business_category: '',
-				products: [],
-				description: '',
-				isaccepted: false,
-				isarchived: false,
-				status: 'pending',
-				documents: {},
-				profile: {},
-				biztype: 'consumer',
-				email: '',
-				mobile: '',
-				guid: 'boomibalagangmailcom',
-				tags: ['personal'],
-				profileUrl: 'http://example.com/profile.jpg',
-			},
-			{
-				id: 'relationshipId2',
-				isSpecial: true,
-				canAccept: false,
-				business_name: 'Boomibalagan R',
-				business_category: '',
-				products: [],
-				description: '',
-				isaccepted: true,
-				isarchived: false,
-				status: 'completed',
-				documents: {},
-				profile: {},
-				biztype: 'consumer',
-				email: '',
-				mobile: '',
-				guid: 'boomibalagangmailcom',
-				tags: ['personal'],
-				profileUrl: 'http://example.com/profile.jpg',
-			},
-		])
+		expect(result).toEqual({
+			relationships: [
+				{
+					id: 'relationshipId1',
+					isSpecial: true,
+					canAccept: true,
+					business_name: 'Boomibalagan R',
+					business_category: '',
+					products: [],
+					description: '',
+					isaccepted: false,
+					isarchived: false,
+					status: 'pending',
+					documents: {},
+					profile: {},
+					biztype: 'consumer',
+					email: '',
+					mobile: '',
+					guid: 'boomibalagangmailcom',
+					tags: ['personal'],
+					profileUrl: 'http://example.com/profile.jpg',
+				},
+				{
+					id: 'relationshipId2',
+					isSpecial: true,
+					canAccept: false,
+					business_name: 'Boomibalagan R', business_category: '',
+					products: [],
+					description: '',
+					isaccepted: true,
+					isarchived: false,
+					status: 'completed',
+					documents: {},
+					profile: {},
+					biztype: 'consumer',
+					email: '',
+					mobile: '',
+					guid: 'boomibalagangmailcom',
+					tags: ['personal'],
+					profileUrl: 'http://example.com/profile.jpg',
+				},
+			]
+		})
 	})
 
 	it('should return an empty array if no relationships exist for the consumer', async () => {
@@ -110,7 +111,7 @@ describe('getAllRelationship service', () => {
 			cofferId
 		)
 
-		expect(relationships).toEqual([])
+		expect(relationships).toEqual({ relationships: [] })
 	})
 
 	it('should throw an error if consumer is not found', async () => {
@@ -228,5 +229,47 @@ describe('requestRelationship service', () => {
 			message: 'Request sent successfully.',
 			data: mockData,
 		})
+	})
+})
+
+
+describe('acceptRelationship service', () => {
+	const acceptorCofferId = 'acceptorCofferId123'
+	const relationshipId = 'relationship_id'
+
+	afterEach(() => {
+		jest.clearAllMocks()
+	})
+
+	it('should throw an error if consumer is not found', async () => {
+		Consumer.findByCofferId.mockResolvedValue(null)
+
+		await expect(
+			relationshipService.acceptRelationship(acceptorCofferId, relationshipId)
+		).rejects.toThrow(new ApiError(httpStatus.NOT_FOUND, 'Account not found.'))
+	})
+
+	it('should throw an error if relationship is not found or already accepted', async () => {
+		Consumer.findByCofferId.mockResolvedValue({ coffer_id: acceptorCofferId })
+		SpecialRelationship.findOneAndUpdate.mockResolvedValue(null)
+
+		await expect(
+			relationshipService.acceptRelationship(acceptorCofferId, relationshipId)
+		).rejects.toThrow(new ApiError(httpStatus.NOT_FOUND, 'Relationship not found or already accepted.'))
+	})
+
+	it('should return a success message when relationship is accepted', async () => {
+		Consumer.findByCofferId.mockResolvedValue({ coffer_id: acceptorCofferId });
+		SpecialRelationship.findOneAndUpdate.mockResolvedValue({
+			_id: relationshipId,
+			acceptor_uid: acceptorCofferId,
+			isaccepted: true,
+			accepted_date: new Date(),
+			status: 'accepted'
+		})
+
+		const result = await relationshipService.acceptRelationship(acceptorCofferId, relationshipId)
+
+		expect(result).toEqual({ message: 'Relationship status modified successfully.' })
 	})
 })

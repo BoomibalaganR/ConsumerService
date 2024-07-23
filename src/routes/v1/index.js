@@ -25,6 +25,6 @@ router.route('/login').post(
 router.use(authenticateToken)
 
 router.use('/citizenship', citizenshipRoute)
-router.use('/relationship', relationshipRoute)
+router.use('/relationships', relationshipRoute)
 
 module.exports = router

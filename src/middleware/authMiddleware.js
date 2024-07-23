@@ -1,5 +1,5 @@
 const ApiError = require('../utils/ApiError')
-const logger = require('../../config/logger') 
+const logger = require('../../config/logger')
 const httpStatus = require('http-status')
 const { verifyToken } = require('../utils/token')
 
@@ -26,6 +26,7 @@ const authenticateToken = (req, res, next) => {
 
     // If authenticated, add coffer_id into request
     req.user = decodedToken
+    // console.log('req.user', req.user)
     logger.info('Successfully authenticated')
     next()
 }
