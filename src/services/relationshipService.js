@@ -149,8 +149,7 @@ exports.acceptRelationship = async (acceptorCofferId, relationshipId) => {
 			'Relationship is already accepted.'
 		)
 	}
-
-	// If it exists and is not accepted, update its properties
+	//change the properties
 	relationship.isaccepted = true
 	relationship.accepted_date = Date.now()
 	relationship.status = 'accepted'
@@ -158,7 +157,7 @@ exports.acceptRelationship = async (acceptorCofferId, relationshipId) => {
 	// Save the updated relationship
 	const acceptedRelationship = await relationship.save()
 
-	// Ensure the update was successful
+	// update was successful
 	if (!acceptedRelationship) {
 		throw new ApiError(
 			httpStatus.INTERNAL_SERVER_ERROR,
