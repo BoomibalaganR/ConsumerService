@@ -4,6 +4,6 @@ const config = require('../config/env')
 require('../config/db')
 
 // Start the Express application server
-app.listen(config.app.port || 3000, () => {
-	logger.info(`consumer service is running on ${config.app.port || 3000}`)
+app.listen(config.app.port, () => {
+	logger.info(`consumer service is running on ${config.app.port}`)
 })

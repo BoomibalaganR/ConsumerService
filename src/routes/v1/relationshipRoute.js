@@ -15,6 +15,7 @@ router.use((req, res, next) => {
 })
 
 router.get('', relationshipController.getAllRelationship)
+router.get('/search/consumer', relationshipController.getAllConsumer)
 
 router.post(
 	'/request',
@@ -26,6 +27,10 @@ router.post(
 	validate(relationshipValidation.acceptRelationship),
 	relationshipController.acceptRelationship
 )
-// router.post('/:rel_id/reject', validate(relationshipValidation.rejectRelationship), relationshipController.rejectRelationship)
+router.post(
+	'/:rel_id/reject',
+	validate(relationshipValidation.rejectRelationship),
+	relationshipController.rejectRelationship
+)
 
 module.exports = router

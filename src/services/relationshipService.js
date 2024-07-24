@@ -3,6 +3,24 @@ const { SpecialRelationship, Consumer } = require('../models')
 const ApiError = require('../utils/ApiError')
 const logger = require('../../config/logger')
 
+exports.getAllConsumer = async coffer_id => {
+	const consumer = await Consumer.findByCofferId(coffer_id)
+
+	if (!consumer) {
+		throw new ApiError(httpStatus.NOT_FOUND, 'Consumer not found')
+	}
+	let consumers = await Consumer.find({ coffer_id: { $ne: coffer_id } })
+	consumers = consumers.map(data => {
+		return {
+			firstName: data.first_name,
+			lastName: data.last_name,
+			email: data.email,
+			id: data._id
+		}
+	})
+	return { consumers: consumers }
+}
+
 exports.getAllRelationship = async coffer_id => {
 	const consumer = await Consumer.findByCofferId(coffer_id)
 
