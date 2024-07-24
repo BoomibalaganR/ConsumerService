@@ -18,7 +18,7 @@ describe('getAllRelationship service', () => {
 			customUid: jest.fn().mockReturnValue('boomibalagangmailcom'),
 			getProfilepicViewUrl: jest
 				.fn()
-				.mockReturnValue('http://example.com/profile.jpg'),
+				.mockReturnValue('http://example.com/profile.jpg')
 		}
 
 		mockRelationshipsData = [
@@ -29,7 +29,7 @@ describe('getAllRelationship service', () => {
 				acceptor_tags: ['personal'],
 				requestor_type: 'consumer',
 				isaccepted: false,
-				status: 'pending',
+				status: 'pending'
 			},
 			{
 				_id: 'relationshipId2',
@@ -38,8 +38,8 @@ describe('getAllRelationship service', () => {
 				requestor_tags: ['personal'],
 				acceptor_type: 'consumer',
 				isaccepted: true,
-				status: 'completed',
-			},
+				status: 'completed'
+			}
 		]
 
 		jest.clearAllMocks()
@@ -73,13 +73,14 @@ describe('getAllRelationship service', () => {
 					mobile: '',
 					guid: 'boomibalagangmailcom',
 					tags: ['personal'],
-					profileUrl: 'http://example.com/profile.jpg',
+					profileUrl: 'http://example.com/profile.jpg'
 				},
 				{
 					id: 'relationshipId2',
 					isSpecial: true,
 					canAccept: false,
-					business_name: 'Boomibalagan R', business_category: '',
+					business_name: 'Boomibalagan R',
+					business_category: '',
 					products: [],
 					description: '',
 					isaccepted: true,
@@ -92,8 +93,8 @@ describe('getAllRelationship service', () => {
 					mobile: '',
 					guid: 'boomibalagangmailcom',
 					tags: ['personal'],
-					profileUrl: 'http://example.com/profile.jpg',
-				},
+					profileUrl: 'http://example.com/profile.jpg'
+				}
 			]
 		})
 	})
@@ -143,7 +144,7 @@ describe('requestRelationship service', () => {
 		await expect(
 			relationshipService.requestRelationship(requestorCofferId, {
 				consumerId: acceptorId,
-				description: description,
+				description: description
 			})
 		).rejects.toThrow(
 			new ApiError(httpStatus.NOT_FOUND, 'Consumer not found')
@@ -152,7 +153,7 @@ describe('requestRelationship service', () => {
 
 	it('should throw an error if acceptor consumer is not found', async () => {
 		Consumer.findByCofferId.mockResolvedValue({
-			coffer_id: 'requestorCofferId',
+			coffer_id: 'requestorCofferId'
 		})
 		// stimulate no acceptor consumer found
 		Consumer.findById.mockResolvedValue(null)
@@ -160,7 +161,7 @@ describe('requestRelationship service', () => {
 		await expect(
 			relationshipService.requestRelationship(requestorCofferId, {
 				consumerId: acceptorId,
-				description: description,
+				description: description
 			})
 		).rejects.toThrow(
 			new ApiError(httpStatus.NOT_FOUND, 'Acceptor Account not found')
@@ -169,14 +170,14 @@ describe('requestRelationship service', () => {
 
 	it('should throw an error if requestor and acceptor consumers are the same', async () => {
 		Consumer.findByCofferId.mockResolvedValue({
-			coffer_id: requestorCofferId,
+			coffer_id: requestorCofferId
 		})
 		Consumer.findById.mockResolvedValue({ coffer_id: requestorCofferId })
 
 		await expect(
 			relationshipService.requestRelationship(requestorCofferId, {
 				consumerId: acceptorId,
-				description: description,
+				description: description
 			})
 		).rejects.toThrow(
 			new ApiError(httpStatus.BAD_REQUEST, 'Operation not permitted.')
@@ -185,7 +186,7 @@ describe('requestRelationship service', () => {
 
 	it('should throw an error if the relationship already exists', async () => {
 		Consumer.findByCofferId.mockResolvedValue({
-			coffer_id: requestorCofferId,
+			coffer_id: requestorCofferId
 		})
 		Consumer.findById.mockResolvedValue({ coffer_id: 'acceptorCofferId' })
 
@@ -195,7 +196,7 @@ describe('requestRelationship service', () => {
 		await expect(
 			relationshipService.requestRelationship(requestorCofferId, {
 				consumerId: acceptorId,
-				description: description,
+				description: description
 			})
 		).rejects.toThrow(
 			new ApiError(httpStatus.BAD_REQUEST, 'Relationship Already Exit')
@@ -207,11 +208,11 @@ describe('requestRelationship service', () => {
 			_id: 'newId',
 			acceptor_uid: 'acceptorCofferId',
 			requestor_uid: 'requestorCofferId',
-			description: description,
+			description: description
 		}
 
 		Consumer.findByCofferId.mockResolvedValue({
-			coffer_id: requestorCofferId,
+			coffer_id: requestorCofferId
 		})
 		Consumer.findById.mockResolvedValue({ coffer_id: 'acceptorCofferId' })
 		SpecialRelationship.exists.mockResolvedValue(false) // Simulate no existing relationship
@@ -221,17 +222,16 @@ describe('requestRelationship service', () => {
 			requestorCofferId,
 			{
 				consumerId: acceptorId,
-				description: description,
+				description: description
 			}
 		)
 
 		expect(result).toEqual({
 			message: 'Request sent successfully.',
-			data: mockData,
+			data: mockData
 		})
 	})
 })
-
 
 describe('acceptRelationship service', () => {
 	const acceptorCofferId = 'acceptorCofferId123'
@@ -245,31 +245,66 @@ describe('acceptRelationship service', () => {
 		Consumer.findByCofferId.mockResolvedValue(null)
 
 		await expect(
-			relationshipService.acceptRelationship(acceptorCofferId, relationshipId)
-		).rejects.toThrow(new ApiError(httpStatus.NOT_FOUND, 'Account not found.'))
+			relationshipService.acceptRelationship(
+				acceptorCofferId,
+				relationshipId
+			)
+		).rejects.toThrow(
+			new ApiError(httpStatus.NOT_FOUND, 'Account not found.')
+		)
 	})
 
-	it('should throw an error if relationship is not found or already accepted', async () => {
-		Consumer.findByCofferId.mockResolvedValue({ coffer_id: acceptorCofferId })
-		SpecialRelationship.findOneAndUpdate.mockResolvedValue(null)
+	it('should throw an error if relationship is not found or invalid acceptor ID', async () => {
+		Consumer.findByCofferId.mockResolvedValue({
+			coffer_id: acceptorCofferId
+		})
+		SpecialRelationship.findOne.mockResolvedValue(null)
 
 		await expect(
-			relationshipService.acceptRelationship(acceptorCofferId, relationshipId)
-		).rejects.toThrow(new ApiError(httpStatus.NOT_FOUND, 'Relationship not found or already accepted.'))
+			relationshipService.acceptRelationship(
+				acceptorCofferId,
+				relationshipId
+			)
+		).rejects.toThrow(
+			new ApiError(
+				httpStatus.NOT_FOUND,
+				'Relationship not found or invalid acceptor ID.'
+			)
+		)
 	})
 
-	it('should return a success message when relationship is accepted', async () => {
-		Consumer.findByCofferId.mockResolvedValue({ coffer_id: acceptorCofferId });
-		SpecialRelationship.findOneAndUpdate.mockResolvedValue({
-			_id: relationshipId,
-			acceptor_uid: acceptorCofferId,
-			isaccepted: true,
-			accepted_date: new Date(),
-			status: 'accepted'
+	it('should successfully accept the relationship', async () => {
+		// Mock Consumer.findByCofferId to return a consumer
+		Consumer.findByCofferId.mockResolvedValue({ _id: acceptorCofferId })
+
+		// Mock SpecialRelationship.findOne to return a relationship
+		const mockRelationship = {
+			isaccepted: false,
+			save: jest.fn().mockResolvedValue({
+				isaccepted: true,
+				accepted_date: Date.now(),
+				status: 'accepted'
+			})
+		}
+		SpecialRelationship.findOne.mockResolvedValue(mockRelationship)
+
+		// Call the function
+		const result = await relationshipService.acceptRelationship(
+			acceptorCofferId,
+			relationshipId
+		)
+
+		// Assert the result
+		expect(result).toEqual({
+			message: 'Relationship successfully accepted'
 		})
 
-		const result = await relationshipService.acceptRelationship(acceptorCofferId, relationshipId)
-
-		expect(result).toEqual({ message: 'Relationship status modified successfully.' })
+		// Assert that methods were called with expected arguments
+		expect(Consumer.findByCofferId).toHaveBeenCalledWith(acceptorCofferId)
+		expect(SpecialRelationship.findOne).toHaveBeenCalledWith({
+			_id: relationshipId,
+			acceptor_uid: acceptorCofferId
+		})
+		expect(mockRelationship.save).toHaveBeenCalled()
 	})
 })

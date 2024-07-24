@@ -3,7 +3,7 @@ const { SpecialRelationship, Consumer } = require('../models')
 const ApiError = require('../utils/ApiError')
 const logger = require('../../config/logger')
 
-exports.getAllRelationship = async (coffer_id) => {
+exports.getAllRelationship = async coffer_id => {
 	const consumer = await Consumer.findByCofferId(coffer_id)
 
 	if (!consumer) {
@@ -11,7 +11,7 @@ exports.getAllRelationship = async (coffer_id) => {
 	}
 
 	const relationships = await SpecialRelationship.find({
-		$or: [{ acceptor_uid: coffer_id }, { requestor_uid: coffer_id }],
+		$or: [{ acceptor_uid: coffer_id }, { requestor_uid: coffer_id }]
 	})
 
 	const consumerRelationships = []
@@ -70,7 +70,7 @@ exports.getAllRelationship = async (coffer_id) => {
 			mobile: '',
 			guid,
 			tags,
-			profileUrl,
+			profileUrl
 		})
 	}
 	return { relationships: consumerRelationships }
@@ -99,13 +99,13 @@ exports.requestRelationship = async (requestorCofferId, payload) => {
 		$or: [
 			{
 				requestor_uid: requestorCofferId,
-				acceptor_uid: acceptorCofferId,
+				acceptor_uid: acceptorCofferId
 			},
 			{
 				requestor_uid: acceptorCofferId,
-				acceptor_uid: requestorCofferId,
-			},
-		],
+				acceptor_uid: requestorCofferId
+			}
+		]
 	})
 	if (relationshipExists) {
 		throw new ApiError(httpStatus.BAD_REQUEST, 'Relationship Already Exit')
@@ -114,7 +114,7 @@ exports.requestRelationship = async (requestorCofferId, payload) => {
 	const newRelationship = await SpecialRelationship.create({
 		acceptor_uid: acceptorCofferId,
 		requestor_uid: requestorCofferId,
-		description: description,
+		description: description
 	})
 
 	logger.info('>>>>>> SEND EMAIL NOTIFICATION <<<<<<')
@@ -124,70 +124,88 @@ exports.requestRelationship = async (requestorCofferId, payload) => {
 }
 
 exports.acceptRelationship = async (acceptorCofferId, relationshipId) => {
-
 	// consumer exists
 	const acceptorConsumer = await Consumer.findByCofferId(acceptorCofferId)
 	if (!acceptorConsumer) {
 		throw new ApiError(httpStatus.NOT_FOUND, 'Account not found.')
 	}
 
-	// Find and update the relationship
-	const acceptedRelationship = await SpecialRelationship.findOneAndUpdate(
-		{
-			_id: relationshipId,
-			acceptor_uid: acceptorCofferId,
-			isaccepted: false
-		},
-		{
-			$set: {
-				isaccepted: true,
-				accepted_date: Date.now(),
-				status: 'accepted'
-			}
-		},
-		{ new: true } // Return the updated document
-	)
+	// First, find the relationship to check its status and validate the acceptor ID
+	const relationship = await SpecialRelationship.findOne({
+		_id: relationshipId,
+		acceptor_uid: acceptorCofferId
+	})
 
+	if (!relationship) {
+		throw new ApiError(
+			httpStatus.NOT_FOUND,
+			'Relationship not found or invalid acceptor ID.'
+		)
+	}
+
+	if (relationship.isaccepted) {
+		throw new ApiError(
+			httpStatus.BAD_REQUEST,
+			'Relationship is already accepted.'
+		)
+	}
+
+	// If it exists and is not accepted, update its properties
+	relationship.isaccepted = true
+	relationship.accepted_date = Date.now()
+	relationship.status = 'accepted'
+
+	// Save the updated relationship
+	const acceptedRelationship = await relationship.save()
+
+	// Ensure the update was successful
 	if (!acceptedRelationship) {
-		throw new ApiError(httpStatus.NOT_FOUND, 'Relationship not found or already accepted.')
+		throw new ApiError(
+			httpStatus.INTERNAL_SERVER_ERROR,
+			'Failed to accept the relationship.'
+		)
 	}
 
 	return {
-		message: 'Relationship status modified successfully.'
+		message: 'Relationship successfully accepted'
 	}
-
 }
 
-exports.rejectRelationship = async (rejectorCofferId, relationshipId, rejectReason) => {
+// exports.rejectRelationship = async (
+// 	rejectorCofferId,
+// 	relationshipId,
+// 	rejectReason
+// ) => {
+// 	// consumer exists
+// 	const rejectorConsumer = await Consumer.findByCofferId(rejectorCofferId)
+// 	if (!rejectorConsumer) {
+// 		throw new ApiError(httpStatus.NOT_FOUND, 'Account not found.')
+// 	}
 
-	// consumer exists
-	const rejectorConsumer = await Consumer.findByCofferId(rejectorCofferId)
-	if (!rejectorConsumer) {
-		throw new ApiError(httpStatus.NOT_FOUND, 'Account not found.')
-	}
-	// console.log(await SpecialRelationship.findById(rejectorCofferId))
-	// Find and update the relationship
-	const rejectedRelationship = await SpecialRelationship.findOneAndUpdate(
-		{
-			_id: relationshipId,
-			acceptor_uid: rejectorCofferId,
-			isaccepted: false
-		},
-		{
-			$set: {
-				status: 'rejected',
-				reject_reason: rejectReason
-			}
-		},
-		{ new: true } // Return the updated document
-	)
+// 	// Find and update the relationship
+// 	const rejectedRelationship = await SpecialRelationship.findOneAndUpdate(
+// 		{
+// 			_id: relationshipId,
+// 			acceptor_uid: rejectorCofferId,
+// 			isaccepted: false
+// 		},
+// 		{
+// 			$set: {
+// 				status: 'rejected',
+// 				reject_reason: rejectReason
+// 			}
+// 		},
+// 		{ new: true } // Return the updated document
+// 	)
 
-	if (!rejectedRelationship) {
-		throw new ApiError(httpStatus.NOT_FOUND, 'Relationship not found or already rejected.')
-	}
+// 	if (!rejectedRelationship) {
+// 		throw new ApiError(
+// 			httpStatus.NOT_FOUND,
+// 			'Relationship not found or already rejected.'
+// 		)
+// 	}
 
-	return {
-		message: 'Successfully rejected relationship.'
-	}
-
-}
+// 	return {
+// 		message: 'Successfully rejected relationship.'
+// 	}
+// }

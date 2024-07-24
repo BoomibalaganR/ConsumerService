@@ -16,8 +16,16 @@ router.use((req, res, next) => {
 
 router.get('', relationshipController.getAllRelationship)
 
-router.post('/request', validate(relationshipValidation.createRelationship), relationshipController.requestRelationship)
-router.post('/:rel_id/accept', validate(relationshipValidation.acceptRelationship), relationshipController.acceptRelationship)
-router.post('/:rel_id/reject', validate(relationshipValidation.rejectRelationship), relationshipController.rejectRelationship)
+router.post(
+	'/request',
+	validate(relationshipValidation.createRelationship),
+	relationshipController.requestRelationship
+)
+router.post(
+	'/:rel_id/accept',
+	validate(relationshipValidation.acceptRelationship),
+	relationshipController.acceptRelationship
+)
+// router.post('/:rel_id/reject', validate(relationshipValidation.rejectRelationship), relationshipController.rejectRelationship)
 
 module.exports = router

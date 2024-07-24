@@ -1,18 +1,16 @@
-const express = require("express")
-const bodyParser = require("body-parser")
+const express = require('express')
+const bodyParser = require('body-parser')
 const cors = require('cors')
 
-const errorHandler = require("./middleware/errorHandler")
-const routesV1 = require("./routes/v1")
-const ApiError = require("./utils/ApiError")
-const logger = require("../config/logger")
+const errorHandler = require('./middleware/errorHandler')
+const routesV1 = require('./routes/v1')
+const ApiError = require('./utils/ApiError')
+const logger = require('../config/logger')
 const app = express()
 
-
-
-// Enable CORS with specific options
+// CORS configuration for specific origin
 const corsOptions = {
-    origin: '*'
+	origin: 'https://editor.swagger.io'
 }
 app.use(cors(corsOptions))
 
@@ -20,12 +18,12 @@ app.use(cors(corsOptions))
 app.use(bodyParser.json())
 
 // Routes
-app.use("/api/v1/consumers", routesV1)
+app.use('/api/v1/consumers', routesV1)
 
 // Handle unknown routes
-app.all("*", (req, res, next) => {
-    logger.info(`Can't find ${req.originalUrl} on this server`)
-    next(new ApiError(400, `Can't find ${req.originalUrl} on this server`))
+app.all('*', (req, res, next) => {
+	logger.info(`Can't find ${req.originalUrl} on this server`)
+	next(new ApiError(400, `Can't find ${req.originalUrl} on this server`))
 })
 
 // Global error handler middleware
