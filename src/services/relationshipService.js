@@ -158,7 +158,7 @@ exports.acceptRelationship = async (acceptorCofferId, relationshipId) => {
 	if (!relationship) {
 		throw new ApiError(httpStatus.NOT_FOUND, 'Relationship not found')
 	}
-	if (relationship.acceptor_uid === acceptorCofferId) {
+	if (relationship.requestor_uid === acceptorCofferId) {
 		throw new ApiError(
 			httpStatus.BAD_REQUEST,
 			'You cannot accept your own relationship request.'
