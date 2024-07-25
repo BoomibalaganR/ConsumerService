@@ -138,7 +138,9 @@ exports.requestRelationship = async (requestorCofferId, payload) => {
 	logger.info('>>>>>> SEND EMAIL NOTIFICATION <<<<<<')
 
 	logger.info('Successfully sent request')
-	return { message: 'Request sent successfully.', data: newRelationship }
+	// return { message: 'Request sent successfully.', data: newRelationship }
+
+	return { message: 'Request sent successfully.' }
 }
 
 exports.acceptRelationship = async (acceptorCofferId, relationshipId) => {
