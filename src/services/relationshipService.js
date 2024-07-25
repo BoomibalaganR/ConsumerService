@@ -152,14 +152,16 @@ exports.acceptRelationship = async (acceptorCofferId, relationshipId) => {
 
 	// First, find the relationship to check its status and validate the acceptor ID
 	const relationship = await SpecialRelationship.findOne({
-		_id: relationshipId,
-		acceptor_uid: acceptorCofferId
+		_id: relationshipId
 	})
 
 	if (!relationship) {
+		throw new ApiError(httpStatus.NOT_FOUND, 'Relationship not found')
+	}
+	if (relationship.acceptor_uid === acceptorCofferId) {
 		throw new ApiError(
-			httpStatus.NOT_FOUND,
-			'Relationship not found or invalid acceptor ID.'
+			httpStatus.BAD_REQUEST,
+			'You cannot accept your own relationship request.'
 		)
 	}
 
@@ -201,30 +203,30 @@ exports.acceptRelationship = async (acceptorCofferId, relationshipId) => {
 // 		throw new ApiError(httpStatus.NOT_FOUND, 'Account not found.')
 // 	}
 
-// 	// Find and update the relationship
-// 	const rejectedRelationship = await SpecialRelationship.findOneAndUpdate(
-// 		{
-// 			_id: relationshipId,
-// 			acceptor_uid: rejectorCofferId,
-// 			isaccepted: false
-// 		},
-// 		{
-// 			$set: {
-// 				status: 'rejected',
-// 				reject_reason: rejectReason
-// 			}
-// 		},
-// 		{ new: true } // Return the updated document
+// // Find and update the relationship
+// const rejectedRelationship = await SpecialRelationship.findOneAndUpdate(
+// 	{
+// 		_id: relationshipId,
+// 		acceptor_uid: rejectorCofferId,
+// 		isaccepted: false
+// 	},
+// 	{
+// 		$set: {
+// 			status: 'rejected',
+// 			reject_reason: rejectReason
+// 		}
+// 	},
+// 	{ new: true } // Return the updated document
+// )
+
+// if (!rejectedRelationship) {
+// 	throw new ApiError(
+// 		httpStatus.NOT_FOUND,
+// 		'Relationship not found or already rejected.'
 // 	)
+// }
 
-// 	if (!rejectedRelationship) {
-// 		throw new ApiError(
-// 			httpStatus.NOT_FOUND,
-// 			'Relationship not found or already rejected.'
-// 		)
-// 	}
-
-// 	return {
-// 		message: 'Successfully rejected relationship.'
-// 	}
+// return {
+// 	message: 'Successfully rejected relationship.'
+// }
 // }
