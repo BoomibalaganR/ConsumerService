@@ -15,3 +15,5 @@ exports.Country = require('./country')
  * Represents a consumerRelationship in the database.
  */
 exports.SpecialRelationship = require('./specialRelationship')
+
+exports.SharedDocument = require('./sharedDocument')

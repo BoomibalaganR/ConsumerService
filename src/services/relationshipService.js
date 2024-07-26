@@ -1,5 +1,7 @@
 const httpStatus = require('http-status')
 const { SpecialRelationship, Consumer } = require('../models')
+const documentService = require('./documentService')
+
 const ApiError = require('../utils/ApiError')
 const logger = require('../../config/logger')
 
@@ -230,3 +232,35 @@ exports.acceptRelationship = async (acceptorCofferId, relationshipId) => {
 // 	message: 'Successfully rejected relationship.'
 // }
 // }
+
+exports.shareDocument = async (documents, relaitonshipId, token) => {
+	//[ {doc_type: Identity, doc_id: 8783ikdkjdk} ]
+
+	const documents = req.body.documents // Assuming the documents are sent in the request body
+
+	// Check each doc_id by making the appropriate API call based on doc_type
+	const checkPromises = documents.map(doc => {
+		if (doc.doc_type === 'Identity') {
+			return documentService.getIdentityDocumentById(doc.doc_id, token)
+		} else if (doc.doc_type === 'Personal') {
+			// return documentService.getPersonalDocumentById(doc.doc_id)
+		} else {
+			return Promise.resolve({ doc_id: doc.doc_id, exists: false })
+		}
+	})
+
+	const results = await Promise.all(checkPromises)
+
+	// Identify missing doc_ids
+	const missingDocIds = results
+		.filter(result => !result.exists)
+		.map(result => result.doc_id)
+
+	//  if any doc_ids are missing
+	if (missingDocIds.length > 0) {
+		return res.status(httpStatus.NOT_FOUND).json({
+			message: 'document not found',
+			missingDocIds
+		})
+	}
+}

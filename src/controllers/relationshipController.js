@@ -44,3 +44,17 @@ exports.rejectRelationship = catchAsync(async (req, res, next) => {
 	)
 	res.status(httpStatus.OK).json(data)
 })
+
+exports.shareDocument = catchAsync(async (req, res, next) => {
+	const { coffer_id } = req.user
+	const { rel_id } = req.params
+	const documents = req.body.add
+	const token = req.headers['authorization']
+
+	const data = await relationshipService.shareDocument(
+		documents,
+		rel_id,
+		token
+	)
+	res.status(httpStatus.OK).json(data)
+})
