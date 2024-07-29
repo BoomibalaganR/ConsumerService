@@ -3,13 +3,13 @@ const httpStatus = require('http-status')
 const logger = require('../../config/logger')
 
 module.exports = (err, req, res, next) => {
-	// console.log(err)
+	console.log(err)
 	// Validation Error Handling
 	if (err.name === 'ValidationError') {
 		let errors = {}
 		// console.log(err.details)
 		if (err.details) {
-			err.details.forEach((detail) => {
+			err.details.forEach(detail => {
 				errors[detail.path] = detail.message
 			})
 			// errors = err.details

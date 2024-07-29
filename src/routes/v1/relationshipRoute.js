@@ -15,6 +15,7 @@ router.use((req, res, next) => {
 })
 
 router.get('', relationshipController.getAllRelationship)
+router.get('/:rel_id', relationshipController.getRelationshipById)
 router.get('/search/consumer', relationshipController.getAllConsumer)
 
 router.post(

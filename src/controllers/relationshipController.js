@@ -15,6 +15,16 @@ exports.getAllRelationship = catchAsync(async (req, res, next) => {
 	res.status(httpStatus.OK).json(data)
 })
 
+exports.getRelationshipById = catchAsync(async (req, res, next) => {
+	const { coffer_id } = req.user
+	const rel_id = req.params.rel_id
+	const data = await relationshipService.getRelationshipById(
+		coffer_id,
+		rel_id
+	)
+	res.status(httpStatus.OK).json(data)
+})
+
 exports.requestRelationship = catchAsync(async (req, res, next) => {
 	const { coffer_id } = req.user
 	const payload = req.body
@@ -41,20 +51,6 @@ exports.rejectRelationship = catchAsync(async (req, res, next) => {
 		coffer_id,
 		rel_id,
 		rejectedReason
-	)
-	res.status(httpStatus.OK).json(data)
-})
-
-exports.shareDocument = catchAsync(async (req, res, next) => {
-	const { coffer_id } = req.user
-	const { rel_id } = req.params
-	const documents = req.body.add
-	const token = req.headers['authorization']
-
-	const data = await relationshipService.shareDocument(
-		documents,
-		rel_id,
-		token
 	)
 	res.status(httpStatus.OK).json(data)
 })

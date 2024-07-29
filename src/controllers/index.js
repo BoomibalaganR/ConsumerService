@@ -15,3 +15,4 @@ exports.citizenshipController = require('./citizenshipController')
  * This module exports the relationship Controller which handles relationship related operations.
  */
 exports.relationshipController = require('./relationshipController')
+exports.consumerController = require('./consumerController')

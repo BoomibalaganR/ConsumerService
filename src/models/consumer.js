@@ -11,27 +11,27 @@ const ConsumerSchema = new Schema(
 	{
 		coffer_id: {
 			type: String,
-			unique: true,
+			unique: true
 		},
 		first_name: {
 			type: String,
-			required: [true, 'First name is required'],
+			required: [true, 'First name is required']
 		},
 		middle_name: {
-			type: String,
+			type: String
 		},
 		last_name: {
 			type: String,
-			required: [true, 'Last name is required'],
+			required: [true, 'Last name is required']
 		},
 		country: {
 			type: String,
-			required: [true, 'Country is required'],
+			required: [true, 'Country is required']
 		},
 		gender: { type: String },
 		password: {
 			type: String,
-			required: [true, 'Password is required'],
+			required: [true, 'Password is required']
 		},
 		confirm_password: { type: String },
 		password_reset_token: { type: String },
@@ -41,14 +41,14 @@ const ConsumerSchema = new Schema(
 		dob: { type: Date },
 		email: {
 			type: String,
-			required: [true, 'Email is required'],
+			required: [true, 'Email is required']
 		},
 		mobile: { type: String },
 		email_verified: { type: Boolean, default: false },
 		mobile_verified: { type: Boolean, default: false },
 		email_verification_token: { type: String },
 		mobile_verification_token: { type: String },
-		citizen: { type: [CountrySchema] }, // Embeds an array of CountrySchema documents
+		citizen: { type: [CountrySchema] } // Embeds an array of CountrySchema documents
 	},
 	{ timestamps: { createdAt: 'joined' } } // Adds createdAt timestamp to track creation date
 )
@@ -56,17 +56,13 @@ const ConsumerSchema = new Schema(
 // Index for efficient lookup by coffer_id
 ConsumerSchema.index({ coffer_id: 1 })
 
-ConsumerSchema.statics.findByCofferId = async function (consumerId) {
-	const con = await this.findOne({ coffer_id: consumerId })
-	return con
-}
-
 /**
  * Method to find the consumer by cofferId.
  * @param {string} consumerId - to find consumer
  * @returns {object} - consumer object
  */
 ConsumerSchema.statics.findByCofferId = async function (consumerId) {
+	console.log('++++>>>>', consumerId)
 	const con = await this.findOne({ coffer_id: consumerId })
 	return con
 }
@@ -90,7 +86,7 @@ ConsumerSchema.methods.hasCitizenship = function () {
 		'citizen_primary',
 		'citizen_second',
 		'citizen_third',
-		'citizen_fourth',
+		'citizen_fourth'
 	]
 
 	for (const citizen of this.citizen) {
