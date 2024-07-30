@@ -28,10 +28,12 @@ exports.getRelationshipById = async (coffer_id, rel_id) => {
 	if (!consumer) {
 		throw new ApiError(httpStatus.NOT_FOUND, 'Consumer not found')
 	}
+
 	const relationship = await SpecialRelationship.findOne({
 		_id: rel_id,
 		$or: [{ acceptor_uid: coffer_id }, { requestor_uid: coffer_id }]
 	})
+
 	if (!relationship) {
 		throw new ApiError(httpStatus.NOT_FOUND, 'Relationship not found')
 	}
