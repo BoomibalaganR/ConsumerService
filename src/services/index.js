@@ -12,12 +12,6 @@ exports.citizenshipService = require('./citizenshipService')
 exports.authService = require('./authService')
 
 /**
- * Module exports for user service.
- * This module exports the userService which provides methods to interact with user data.
- */
-exports.userService = require('./userService')
-
-/**
  * Module exports for relationship service.
  * This module exports the relationshipService which provides methods to interact with relationship data.
  */
