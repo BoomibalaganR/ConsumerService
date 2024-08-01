@@ -74,14 +74,11 @@ exports.deleteCitizenship = catchAsync(async (req, res) => {
 	const coffer_id = req.user.coffer_id
 	const category = req.params.cat
 
-	await citizenshipService.deleteCitizenship(coffer_id, category)
+	const data = await citizenshipService.deleteCitizenship(coffer_id, category)
 
 	//to invalidate cache
 	// invalidateMultipleKeys(['/consumers/citizenship', `${req.originalUrl}`])
-	res.status(httpStatus.OK).json({
-		error: false,
-		msg: 'Deleted country affiliation successfully.',
-	})
+	res.status(httpStatus.OK).json(data)
 })
 
 /**

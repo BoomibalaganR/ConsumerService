@@ -163,4 +163,7 @@ exports.deleteCitizenship = async (coffer_id, category) => {
 			`Citizenship ${category} not found.`
 		)
 	}
+	return {
+		msg: 'Deleted country affiliation successfully.'
+	}
 }
