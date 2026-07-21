@@ -12,6 +12,8 @@ const app = express()
 
 dotenv.config({ path: "./config.env" })
 
+console.log("dotenv.config() called, process.env.CLOUD_DB_URI:", process.env.CLOUD_DB_URI)
+
 // Connect to MongoDB
 mongoose
     .connect(process.env.CLOUD_DB_URI)
